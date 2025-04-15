@@ -13,7 +13,7 @@ var App *firebase.App
 
 func init() {
 	// Path to your service account key JSON file
-	serviceAccountKey := "./firebase/serviceAccountKey.json"
+	serviceAccountKey := "/etc/secrets/serviceAccountKey.json"
 	opt := option.WithCredentialsFile(serviceAccountKey)
 
 	// Initialize the Firebase app
