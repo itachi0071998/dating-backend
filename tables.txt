@@ -1,0 +1,117 @@
+CREATE TABLE users (
+    id VARCHAR(64) PRIMARY KEY,  
+    mobile VARCHAR(15) UNIQUE, 
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    gender VARCHAR(10),
+    dob BIGINT,              
+    email VARCHAR(100) UNIQUE, 
+    url VARCHAR(255)
+);
+
+
+
+CREATE TABLE user_food_preferences (
+    user_id CHAR(36) PRIMARY KEY,  -- UUIDs stored as CHAR(36) in MySQL
+    favorite_cuisine_other TEXT,
+    dietary_preference_other TEXT,
+    food_allergy_other TEXT,
+    favorite_dishes_other TEXT,
+    cooking_style_other TEXT,
+    spice_tolerance_other TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE cuisines (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+
+CREATE TABLE dietary_preferences (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE food_allergies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+
+CREATE TABLE dishes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+
+CREATE TABLE cooking_styles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+
+CREATE TABLE spice_levels (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
+);
+
+
+CREATE TABLE user_favorite_cuisines (
+    user_id CHAR(36),
+    cuisine_id INT,
+    PRIMARY KEY (user_id, cuisine_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (cuisine_id) REFERENCES cuisines(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE user_dietary_preferences (
+    user_id CHAR(36),
+    dietary_preference_id INT,
+    PRIMARY KEY (user_id, dietary_preference_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (dietary_preference_id) REFERENCES dietary_preferences(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE user_food_allergies (
+    user_id CHAR(36),
+    allergy_id INT,
+    PRIMARY KEY (user_id, allergy_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (allergy_id) REFERENCES food_allergies(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE user_favorite_dishes (
+    user_id CHAR(36),
+    dish_id INT,
+    PRIMARY KEY (user_id, dish_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE
+);
+
+
+
+
+CREATE TABLE user_cooking_styles (
+    user_id CHAR(36),
+    cooking_style_id INT,
+    PRIMARY KEY (user_id, cooking_style_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (cooking_style_id) REFERENCES cooking_styles(id) ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE user_spice_levels (
+    user_id CHAR(36),
+    spice_level_id INT,
+    PRIMARY KEY (user_id, spice_level_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (spice_level_id) REFERENCES spice_levels(id) ON DELETE CASCADE
+);
+
+

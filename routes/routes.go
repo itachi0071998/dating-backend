@@ -8,5 +8,6 @@ import (
 func SetupRoutes() *gin.Engine {
 	r := gin.Default()
 	AuthRoutes(r)
+	FoodPrefrenceRoutes(r)
 	return r
 }
