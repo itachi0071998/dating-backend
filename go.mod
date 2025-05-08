@@ -6,7 +6,6 @@ require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-sql-driver/mysql v1.9.2
-	github.com/gorilla/mux v1.8.1
 	github.com/rs/cors v1.11.1
 	google.golang.org/api v0.228.0
 )

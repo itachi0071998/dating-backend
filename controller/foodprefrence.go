@@ -34,7 +34,7 @@ func CreateFoodPreference(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Food preferences created successfully"})	
+	c.JSON(http.StatusCreated, gin.H{"message": "Food preferences created successfully"})	
 
 }
 
@@ -75,7 +75,7 @@ func UpdateFoodPreference(c *gin.Context) {
 
 	userID := uid.(string)
 
-	var updateFoodPreference models.UserFoodPreference
+	var updateFoodPreference models.FoodPrefrenceOtherRequestDTO
 	if err := c.ShouldBindJSON(&updateFoodPreference); err != nil {
 		fmt.Println("Error binding food preference data: ", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

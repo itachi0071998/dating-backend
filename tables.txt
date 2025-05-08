@@ -115,3 +115,37 @@ CREATE TABLE user_spice_levels (
 );
 
 
+CREATE TABLE user_posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id CHAR(36),
+    caption TEXT,
+    location VARCHAR(255),
+    is_public BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE gallery_tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE post_media (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT,
+    media_url VARCHAR(255),
+    file_type VARCHAR(255),
+    FOREIGN KEY (post_id) REFERENCES user_posts(id) ON DELETE CASCADE
+);
+
+CREATE TABLE post_tags (
+    post_id INT,
+    tag_id INT,
+    PRIMARY KEY (post_id, tag_id),
+    FOREIGN KEY (post_id) REFERENCES user_posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES gallery_tags(id) ON DELETE CASCADE
+);

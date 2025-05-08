@@ -2,18 +2,27 @@ package models
 
 
 type FoodPrefrenceRequestDTO struct {
-	FavoriteCuisineOther     string   `json:"favorite_cuisine_other"`
-	DietaryPreferenceOther   string   `json:"dietary_preference_other"`
-	FoodAllergyOther         string   `json:"food_allergy_other"`
-	FavoriteDishesOther      string   `json:"favorite_dishes_other"`
-	CookingStyleOther        string   `json:"cooking_style_other"`
-	SpiceToleranceOther      string   `json:"spice_tolerance_other"`
-	FavoriteCuisines         []int    `json:"favorite_cuisines"`
-	DietaryPreferences       []int    `json:"dietary_preferences"`
-	FoodAllergies            []int    `json:"food_allergies"`
-	FavoriteDishes           []int    `json:"favorite_dishes"`
-	CookingStyles            []int    `json:"cooking_styles"`
-	SpiceLevels              []int    `json:"spice_levels"`
+	FavoriteCuisineOther     []string   `json:"favorite_cuisine_other"`
+	DietaryPreferenceOther   []string   `json:"dietary_preference_other"`
+	FoodAllergyOther         []string   `json:"food_allergy_other"`
+	FavoriteDishesOther      []string   `json:"favorite_dishes_other"`
+	CookingStyleOther        []string   `json:"cooking_style_other"`
+	SpiceToleranceOther      []string   `json:"spice_tolerance_other"`
+	FavoriteCuisines         []int      `json:"favorite_cuisines"`
+	DietaryPreferences       []int      `json:"dietary_preferences"`
+	FoodAllergies            []int      `json:"food_allergies"`
+	FavoriteDishes           []int      `json:"favorite_dishes"`
+	CookingStyles            []int      `json:"cooking_styles"`
+	SpiceLevels              []int      `json:"spice_levels"`
+}
+
+type FoodPrefrenceOtherRequestDTO struct {
+	FavoriteCuisineOther     []string   `json:"favorite_cuisine_other"`
+	DietaryPreferenceOther   []string   `json:"dietary_preference_other"`
+	FoodAllergyOther         []string   `json:"food_allergy_other"`
+	FavoriteDishesOther      []string   `json:"favorite_dishes_other"`
+	CookingStyleOther        []string   `json:"cooking_style_other"`
+	SpiceToleranceOther      []string   `json:"spice_tolerance_other"`
 }
 
 type DietaryPreferenceRequestDTO struct {
@@ -45,6 +54,32 @@ type FavoriteCuisineRequestDTO struct {
 	AddFavoriteCuisine    []int    `json:"add_favorite_cuisine"`
 	RemoveFavoriteCuisine []int    `json:"remove_favorite_cuisine"`
 }		
+
+type UserPostRequestDTO struct {
+	Caption   string `json:"caption"`
+	Location  string `json:"location"`
+	IsPublic  bool   `json:"is_public"`
+	Media     []struct {
+		URL   string `json:"url"`
+		Type  string `json:"type"` 
+	} 				`json:"media"`
+	Tags      []int  `json:"tags"`
+}
+
+type UpdateUserPostRequestDTO struct {
+	PostID    int `json:"post_id"`
+	Caption   string `json:"caption"`
+	Location  string `json:"location"`
+	IsPublic  bool   `json:"is_public"`
+}
+
+type UpdatePostTagRequestDTO struct {
+	PostID     int `json:"post_id"`
+	AddTags   []int `json:"add_tags"`
+	RemoveTags []int `json:"remove_tags"`
+}
+	
+
 
 
 
