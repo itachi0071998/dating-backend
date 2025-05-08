@@ -1,6 +1,6 @@
 module foodieMatch
 
-go 1.24.0
+go 1.21
 
 require (
 	firebase.google.com/go v3.13.0+incompatible
