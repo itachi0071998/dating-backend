@@ -22,8 +22,10 @@ func InsertUserFoodPreference(userID string, foodPreference *models.FoodPrefrenc
 	}()
 
 	// Insert main food preference record
-	_, err = tx.Exec(query.InsertUserFoodPreference, userID, foodPreference.FavoriteCuisineOther, foodPreference.DietaryPreferenceOther,
-		foodPreference.FoodAllergyOther, foodPreference.FavoriteDishesOther, foodPreference.CookingStyleOther, foodPreference.SpiceToleranceOther)
+	_, err = tx.Exec(query.InsertUserFoodPreference, userID, strings.Join(foodPreference.FavoriteCuisineOther, ","), strings.Join(foodPreference.DietaryPreferenceOther, ","),
+		strings.Join(foodPreference.FoodAllergyOther, ","), strings.Join(foodPreference.FavoriteDishesOther, ","), strings.Join(foodPreference.CookingStyleOther, ","), 
+		strings.Join(foodPreference.SpiceToleranceOther, ","))
+	
 	if err != nil {
 		return fmt.Errorf("error inserting food preference: %v", err)
 	}
@@ -122,7 +124,8 @@ func InsertUserFoodPreference(userID string, foodPreference *models.FoodPrefrenc
 }
 
 func GetUserFoodPreference(userID string) (*models.FoodPrefrenceResponseDTO, error) {
-	var foodPreference models.FoodPrefrenceResponseDTO
+	var foodPreference models.UserFoodPreference
+	var foodPreferenceResponse models.FoodPrefrenceResponseDTO
 	var favoriteCuisines, dietaryPreferences, foodAllergies, favoriteDishes, cookingStyles, spiceLevels sql.NullString
 
 	err := DB.QueryRow(query.GetUserFoodPreference, userID).Scan(
@@ -149,33 +152,54 @@ func GetUserFoodPreference(userID string) (*models.FoodPrefrenceResponseDTO, err
 		fmt.Println("Error getting Food Preference: ", err)
 		return nil, err
 	}
+	foodPreferenceResponse.UserID = foodPreference.UserID
 
+	if foodPreference.FavoriteCuisineOther != "" {
+		foodPreferenceResponse.FavoriteCuisineOther = strings.Split(foodPreference.FavoriteCuisineOther, ",")
+	}
+	if foodPreference.DietaryPreferenceOther != "" {
+		foodPreferenceResponse.DietaryPreferenceOther = strings.Split(foodPreference.DietaryPreferenceOther, ",")
+	}
+	if foodPreference.FoodAllergyOther != "" {
+		foodPreferenceResponse.FoodAllergyOther = strings.Split(foodPreference.FoodAllergyOther, ",")
+	}
+	if foodPreference.FavoriteDishesOther != "" {
+		foodPreferenceResponse.FavoriteDishesOther = strings.Split(foodPreference.FavoriteDishesOther, ",")
+	}
+	if foodPreference.CookingStyleOther != "" {
+		foodPreferenceResponse.CookingStyleOther = strings.Split(foodPreference.CookingStyleOther, ",")
+	}
+	if foodPreference.SpiceToleranceOther != "" {
+		foodPreferenceResponse.SpiceToleranceOther = strings.Split(foodPreference.SpiceToleranceOther, ",")
+	}
 	if favoriteCuisines.Valid {
-		foodPreference.FavoriteCuisines = strings.Split(favoriteCuisines.String, ",")
+		foodPreferenceResponse.FavoriteCuisines = strings.Split(favoriteCuisines.String, ",")
 	}
 	if dietaryPreferences.Valid {
-		foodPreference.DietaryPreferences = strings.Split(dietaryPreferences.String, ",")
+		foodPreferenceResponse.DietaryPreferences = strings.Split(dietaryPreferences.String, ",")
 	}
 	if foodAllergies.Valid {
-		foodPreference.FoodAllergies = strings.Split(foodAllergies.String, ",")
+		foodPreferenceResponse.FoodAllergies = strings.Split(foodAllergies.String, ",")
 	}
 	if favoriteDishes.Valid {
-		foodPreference.FavoriteDishes = strings.Split(favoriteDishes.String, ",")
+		foodPreferenceResponse.FavoriteDishes = strings.Split(favoriteDishes.String, ",")
 	}
 	if cookingStyles.Valid {
-		foodPreference.CookingStyles = strings.Split(cookingStyles.String, ",")
+		foodPreferenceResponse.CookingStyles = strings.Split(cookingStyles.String, ",")
 	}
 	if spiceLevels.Valid {
-		foodPreference.SpiceLevels = strings.Split(spiceLevels.String, ",")
+		foodPreferenceResponse.SpiceLevels = strings.Split(spiceLevels.String, ",")
 	}
 
-	return &foodPreference, nil
+	return &foodPreferenceResponse, nil
 }
 
 
-func UpdateUserFoodPreference(userID string, foodPreference *models.UserFoodPreference) error {
-	_, err := DB.Exec(query.UpdateUserFoodPreference, foodPreference.FavoriteCuisineOther, foodPreference.DietaryPreferenceOther,
-		foodPreference.FoodAllergyOther, foodPreference.FavoriteDishesOther, foodPreference.CookingStyleOther, foodPreference.SpiceToleranceOther, userID)
+func UpdateUserFoodPreference(userID string, foodPreference *models.FoodPrefrenceOtherRequestDTO) error {
+	_, err := DB.Exec(query.UpdateUserFoodPreference, strings.Join(foodPreference.FavoriteCuisineOther, ","), strings.Join(foodPreference.DietaryPreferenceOther, ","),
+		strings.Join(foodPreference.FoodAllergyOther, ","), strings.Join(foodPreference.FavoriteDishesOther, ","), strings.Join(foodPreference.CookingStyleOther, ","), 
+		strings.Join(foodPreference.SpiceToleranceOther, ","), userID)
+
 	if err != nil {
 		fmt.Println("Error updating Food Preference: ", err)
 		return err

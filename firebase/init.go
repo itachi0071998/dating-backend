@@ -11,9 +11,10 @@ import (
 
 var App *firebase.App
 
-func init() {
+func InitFirebase() error {
 	// Path to your service account key JSON file
-	serviceAccountKey := "/etc/secrets/serviceAccountKey.json"
+	log.Println("Firebase connection started")
+	serviceAccountKey := "serviceAccountKey.json"
 	opt := option.WithCredentialsFile(serviceAccountKey)
 
 	// Initialize the Firebase app
@@ -21,6 +22,8 @@ func init() {
 	App, err = firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		log.Fatalf("error initializing firebase app: %v", err)
+		return err
 	}
 	fmt.Println("Connected to the firebase Server!")
+	return nil
 }
