@@ -8,9 +8,8 @@ import (
 )
 
 func AuthRoutes(r *gin.Engine) {
-	userRoutes := r.Group("/user/auth")
+	userRoutes := r.Group("/user")
 	userRoutes.Use(firebase.AuthMiddleware()) 
-	userRoutes.GET("/getUser", controller.GetUserProfile)
-	userRoutes.POST("/createUser", controller.CreateUser)
-	userRoutes.PUT("/updateUser", controller.UpdateUser)
+	userRoutes.POST("/profile", controller.CreateUserProfile)
+	userRoutes.PUT("/profile", controller.UpdateUserProfile)
 }

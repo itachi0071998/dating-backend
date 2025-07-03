@@ -8,12 +8,11 @@ import (
 )
 
 func UserPostRoutes(r *gin.Engine) {
-	userRoutes := r.Group("/user/post")
+	userRoutes := r.Group("/user")
 	userRoutes.Use(firebase.AuthMiddleware()) 
-	userRoutes.POST("/createUserPost", controller.CreateUserPost)
-	userRoutes.GET("/getAllUserPost", controller.GetAllUserPost)
-	userRoutes.GET("/getUserPostById/:post_id", controller.GetUserPostById)
-	userRoutes.PUT("/updateUserPost", controller.UpdateUserPost)
-	userRoutes.PUT("/updateUserTag", controller.UpdateUserTag)
-	userRoutes.DELETE("/deleteUserPost/:post_id", controller.DeleteUserPost)
+	userRoutes.POST("/post", controller.CreateUserPost)
+	userRoutes.GET("/post", controller.GetAllUserPost)
+	userRoutes.GET("/post/:post_id", controller.GetUserPostById)
+	userRoutes.PUT("/post/:post_id", controller.UpdateUserPost)
+	userRoutes.DELETE("/post/:post_id", controller.DeleteUserPost)
 }

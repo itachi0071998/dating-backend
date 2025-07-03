@@ -10,5 +10,7 @@ func SetupRoutes() *gin.Engine {
 	AuthRoutes(r)
 	FoodPrefrenceRoutes(r)
 	UserPostRoutes(r)
+	FixTableRoutes(r)
+	UserPromptRoutes(r)
 	return r
 }

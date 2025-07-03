@@ -14,7 +14,7 @@ var App *firebase.App
 func InitFirebase() error {
 	// Path to your service account key JSON file
 	log.Println("Firebase connection started")
-	serviceAccountKey := "serviceAccountKey.json"
+	serviceAccountKey := "/Users/aakashaggarwal/Desktop/datingApp/dating backend/FoddieMatch/firebase/serviceAccountKey.json"
 	opt := option.WithCredentialsFile(serviceAccountKey)
 
 	// Initialize the Firebase app

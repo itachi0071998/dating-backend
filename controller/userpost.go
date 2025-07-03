@@ -79,14 +79,14 @@ func GetUserPostById(c *gin.Context) {
 	
 
 func UpdateUserPost(c *gin.Context) {
-	var userPostRequestDTO models.UpdateUserPostRequestDTO
+	var userPostRequestDTO models.UserPostRequestDTO
 	if err := c.ShouldBindJSON(&userPostRequestDTO); err != nil {
 		fmt.Println("Error binding user post data: ", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}	
 
-	err := db.UpdateUserPost(userPostRequestDTO)
+	err := db.UpdateUserPost(userPostRequestDTO, c.Param("post_id"))
 	if err != nil {
 		fmt.Println("Error updating user post: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user post"})
@@ -109,22 +109,4 @@ func DeleteUserPost(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "User post deleted successfully"})
 
-}
-
-func UpdateUserTag(c *gin.Context) {
-	var updatePostTag models.UpdatePostTagRequestDTO	
-	if err := c.ShouldBindJSON(&updatePostTag); err != nil {
-		fmt.Println("Error binding user tag data: ", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	err := db.UpdateUserPostTag(&updatePostTag)
-	if err != nil {
-		fmt.Println("Error updating user tag: ", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user tag"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "User tag updated successfully"})
 }

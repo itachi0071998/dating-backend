@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"foodieMatch/models"
 	"foodieMatch/query"
@@ -22,7 +23,7 @@ func CreateUserPost(userID string, userPostRequestDTO models.UserPostRequestDTO)
 
 	var userPostID int
 
-	result, err := tx.Exec(query.InsertUserPost, userID, userPostRequestDTO.Caption, userPostRequestDTO.Location, userPostRequestDTO.IsPublic, time.Now())
+	result, err := tx.Exec(query.InsertUserPost, userID, userPostRequestDTO.Caption, userPostRequestDTO.IsPublic, time.Now(), userPostRequestDTO.RestaurantName, userPostRequestDTO.RestaurantLocation)
 	if err != nil {
 		return 0, err
 	}
@@ -45,19 +46,6 @@ func CreateUserPost(userID string, userPostRequestDTO models.UserPostRequestDTO)
 		return 0, err
 	}
 
-	placeholders = nil	
-	values = nil
-
-	for _, tag := range userPostRequestDTO.Tags {
-		placeholders = append(placeholders, "(?, ?)")
-		values = append(values, userPostID, tag)
-	}
-	tagQuery := fmt.Sprintf(query.InsertPostTag, strings.Join(placeholders, ","))
-	_, err = tx.Exec(tagQuery, values...)
-	if err != nil {
-		return 0, err
-	}
-
 	if err = tx.Commit(); err != nil {
 		return 0, err
 	}
@@ -75,15 +63,22 @@ func GetAllUserPost(userID string) ([]models.UserPostResponseDTO, error) {
 
 	for rows.Next() {
 		var userPost models.UserPostResponseDTO
-		var tags sql.NullString
+		var mediaJSON sql.NullString
 
-		err := rows.Scan(&userPost.PostID, &userPost.UserID, &userPost.Caption, &userPost.Location, &userPost.IsPublic, &userPost.CreatedAt, &userPost.UpdatedAt, &userPost.MediaURL, &userPost.FileType, &tags)
+		err := rows.Scan(&userPost.PostID, &userPost.UserID, 
+			&userPost.Caption, &userPost.IsPublic, 
+			&userPost.CreatedAt, &userPost.UpdatedAt, 
+			&userPost.RestaurantName, &userPost.RestaurantLocation, &mediaJSON)
 		if err != nil {
 			return nil, err
 		}
-		if tags.Valid {
-			userPost.Tags = strings.Split(tags.String, ",")
+		if mediaJSON.Valid {
+			err := json.Unmarshal([]byte(mediaJSON.String), &userPost.Media)
+			if err != nil {
+				return nil, fmt.Errorf("failed to unmarshal media JSON: %w", err)
+			}
 		}
+
 		userPosts = append(userPosts, userPost)
 	}
 
@@ -92,17 +87,21 @@ func GetAllUserPost(userID string) ([]models.UserPostResponseDTO, error) {
 
 func GetUserPostById(postID string) (models.UserPostResponseDTO, error) {
 	var userPost models.UserPostResponseDTO
-	var tags sql.NullString
-	err := DB.QueryRow(query.GetUserPostById, postID).Scan(&userPost.PostID, &userPost.UserID, &userPost.Caption, &userPost.Location, &userPost.IsPublic, &userPost.CreatedAt, &userPost.UpdatedAt, &userPost.MediaURL, &userPost.FileType, &tags)
+	var mediaJSON sql.NullString
+	err := DB.QueryRow(query.GetUserPostById, postID).Scan(&userPost.PostID, &userPost.UserID, &userPost.Caption, &userPost.IsPublic, &userPost.CreatedAt, &userPost.UpdatedAt, &userPost.RestaurantName, &userPost.RestaurantLocation, &mediaJSON)
 	if err==sql.ErrNoRows {
 		return userPost, fmt.Errorf("post not found")
 	}
 	if err != nil {
 		return userPost, err
 	}
-	if tags.Valid {
-		userPost.Tags = strings.Split(tags.String, ",")
+	if mediaJSON.Valid {
+		err := json.Unmarshal([]byte(mediaJSON.String), &userPost.Media)
+		if err != nil {
+			return userPost, fmt.Errorf("failed to unmarshal media JSON: %w", err)
+		}
 	}
+
 	return userPost, nil
 }
 
@@ -113,53 +112,13 @@ func DeleteUserPost(postID string) error {
 	}
 	return nil
 }
-	
-func UpdateUserPostTag(updatePostTag *models.UpdatePostTagRequestDTO) error {
-	tx, err := DB.Begin()
-	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %v", err)
-	}	
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		}
-	}()
-	var placeholders []string		
-	var values []interface{}
 
-	for _, tagID := range updatePostTag.AddTags {
-		placeholders = append(placeholders, "(?, ?)")
-		values = append(values, updatePostTag.PostID, tagID)
-	}
-	if len(placeholders) > 0 {
-		tagQuery := fmt.Sprintf(query.InsertPostTag, strings.Join(placeholders, ","))
-		fmt.Println("tagQuery: ", tagQuery)
-		_, err = tx.Exec(tagQuery, values...)
-		if err != nil {
-			return fmt.Errorf("error inserting tag: %v", err)
-		}
-	}	
-
-	for _, tagID := range updatePostTag.RemoveTags {
-		_, err = tx.Exec(query.DeletePostTag, updatePostTag.PostID, tagID)
-		if err != nil {
-			return fmt.Errorf("error deleting tag: %v", err)
-		}
-	}
-	
-	_, err = tx.Exec(query.UpdateUserPostUpdatedTime, time.Now(), updatePostTag.PostID)
-	if err != nil {
-		return fmt.Errorf("error updating user post updated time: %v", err)
-	}
-
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("error committing transaction: %v", err)
-	}
-	return nil
-}
-
-func UpdateUserPost(userPostRequestDTO models.UpdateUserPostRequestDTO) error {
-	_, err := DB.Exec(query.UpdateUserPost, userPostRequestDTO.Caption, userPostRequestDTO.Location, userPostRequestDTO.IsPublic, time.Now(), userPostRequestDTO.PostID)	
+func UpdateUserPost(userPostRequestDTO models.UserPostRequestDTO, postID string) error {
+	_, err := DB.Exec(query.UpdateUserPost, 
+		userPostRequestDTO.Caption, 
+		userPostRequestDTO.IsPublic, 
+		time.Now(), userPostRequestDTO.RestaurantName, 
+		userPostRequestDTO.RestaurantLocation, postID)	
 	if err != nil {
 		return err
 	}

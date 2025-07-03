@@ -6,22 +6,43 @@ CREATE TABLE users (
     gender VARCHAR(10),
     dob BIGINT,              
     email VARCHAR(100) UNIQUE, 
-    url VARCHAR(255)
+    url VARCHAR(255),
+    bio TEXT,
+    education VARCHAR(100),
+    work VARCHAR(100),
+    home_town VARCHAR(100),
+    current_city VARCHAR(100)
 );
 
 
 
 CREATE TABLE user_food_preferences (
-    user_id CHAR(36) PRIMARY KEY,  -- UUIDs stored as CHAR(36) in MySQL
+    user_id CHAR(36) PRIMARY KEY, 
     favorite_cuisine_other TEXT,
     dietary_preference_other TEXT,
+    dining_style_other TEXT,
+    food_habit_other TEXT,
+    fav_drink_other TEXT,
     food_allergy_other TEXT,
     favorite_dishes_other TEXT,
     cooking_style_other TEXT,
     spice_tolerance_other TEXT,
+    cooking_level_other TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE cooking_levels (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_cooking_levels (
+    user_id CHAR(36),
+    cooking_level_id INT,
+    PRIMARY KEY (user_id, cooking_level_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (cooking_level_id) REFERENCES cooking_levels(id) ON DELETE CASCADE
+);
 
 CREATE TABLE cuisines (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -119,15 +140,18 @@ CREATE TABLE user_posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id CHAR(36),
     caption TEXT,
-    location VARCHAR(255),
+    restaurant_name VARCHAR(255),
+    restaurant_location VARCHAR(255),
     is_public BOOLEAN DEFAULT TRUE,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    media_url VARCHAR(255),
+    file_type VARCHAR(255),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-
+// remoe gallery tags and keep it in the user posts
 
 CREATE TABLE gallery_tags (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -137,8 +161,7 @@ CREATE TABLE gallery_tags (
 CREATE TABLE post_media (
     id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT,
-    media_url VARCHAR(255),
-    file_type VARCHAR(255),
+    
     FOREIGN KEY (post_id) REFERENCES user_posts(id) ON DELETE CASCADE
 );
 
@@ -148,4 +171,96 @@ CREATE TABLE post_tags (
     PRIMARY KEY (post_id, tag_id),
     FOREIGN KEY (post_id) REFERENCES user_posts(id) ON DELETE CASCADE,
     FOREIGN KEY (tag_id) REFERENCES gallery_tags(id) ON DELETE CASCADE
+);
+
+CREATE TABLE dining_styles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_dining_styles (
+    user_id CHAR(36),
+    dining_style_id INT,
+    PRIMARY KEY (user_id, dining_style_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (dining_style_id) REFERENCES dining_styles(id) ON DELETE CASCADE
+);
+
+CREATE TABLE food_habits (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_food_habits (
+    user_id CHAR(36),
+    food_habit_id INT,
+    PRIMARY KEY (user_id, food_habit_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (food_habit_id) REFERENCES food_habits(id) ON DELETE CASCADE
+);
+
+CREATE TABLE fav_drinks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_fav_drinks (
+    user_id CHAR(36),
+    fav_drink_id INT,
+    PRIMARY KEY (user_id, fav_drink_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (fav_drink_id) REFERENCES fav_drinks(id) ON DELETE CASCADE
+);
+
+CREATE TABLE food_hobbies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_food_hobbies (
+    user_id CHAR(36),
+    food_hobby_id INT,
+    PRIMARY KEY (user_id, food_hobby_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (food_hobby_id) REFERENCES food_hobbies(id) ON DELETE CASCADE
+);
+
+CREATE TABLE food_bucket_list (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_food_bucket_list (
+    user_id CHAR(36),
+    food_bucket_list_id INT,
+    PRIMARY KEY (user_id, food_bucket_list_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (food_bucket_list_id) REFERENCES food_bucket_list(id) ON DELETE CASCADE
+);
+
+CREATE TABLE food_priority (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_food_priority (
+    user_id CHAR(36),
+    food_priority_id INT,
+    PRIMARY KEY (user_id, food_priority_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (food_priority_id) REFERENCES food_priority(id) ON DELETE CASCADE
+);
+
+CREATE TABLE prompts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_prompts (
+    user_id CHAR(36),
+    prompt_id INT,
+    prompt TEXT,
+    PRIMARY KEY (user_id, prompt_id),
+    FOREIGN KEY (user_id) REFERENCES user_food_preferences(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (prompt_id) REFERENCES prompts(id) ON DELETE CASCADE
 );

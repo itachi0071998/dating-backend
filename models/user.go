@@ -28,3 +28,8 @@ func (u *User) Validate() error {
 	}
 	return nil
 }
+
+type UserRequestDTO struct {
+	User User `json:"user"`
+	FoodPreference FoodPrefrenceRequestDTO `json:"food_preference"`
+}
