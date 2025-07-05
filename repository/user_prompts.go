@@ -56,7 +56,7 @@ func GetUserPrompt(userID string) ([]int, error) {
 
 func UpdateUserPrompt(userID string, prompts *[]models.PromptDTO) error {
 	for _, prompt := range *prompts {
-		_, err := db.DB.Exec(query.UpdateUserPrompt, prompt.Answer, userID, prompt.PromptID)
+		_, err := db.DB.Exec(query.UpdateUserPrompt, userID, prompt.PromptID, prompt.Answer)
 		if err != nil {
 			return fmt.Errorf("error updating prompt: %v", err)
 		}

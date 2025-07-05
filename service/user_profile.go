@@ -41,13 +41,15 @@ func InsertUserProfile(userID string, userProfile *models.UserProfileRequest) er
 }
 
 func UpdateUserProfile(userID string, userProfile *models.UserProfileRequest) error {
-	if err := repository.UpsertUser(&userProfile.User); err != nil {
+	log.Printf("Request started for user: %v", userID)
+	if err := repository.UpsertUser(&userProfile.User, userID); err != nil {
 		return err
 	}
+	log.Printf("UpsertUser success for user ID: %v", userProfile.User.ID)
 	if err := updateUserFoodPreference(userID, &userProfile.FoodPreference); err != nil {
 		return err
 	}
-	if err := updateUserPrompts(userID, &userProfile.Prompts); err != nil {
+   	if err := updateUserPrompts(userID, &userProfile.Prompts); err != nil {
 		return err
 	}
 	return nil

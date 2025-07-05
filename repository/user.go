@@ -18,8 +18,8 @@ func CheckUserExists(tx *sql.Tx, id string) (bool, error) {
 	return exists, nil
 }
 
-func UpsertUser(user *models.User) error {
-	_, err := db.DB.Exec(query.UpdateUser, user.Mobile, user.Email, user.DOB, user.FirstName, user.LastName, user.Gender, user.Url, user.ID)
+func UpsertUser(user *models.User, userID string) error {
+	_, err := db.DB.Exec(query.UpdateUser, user.Mobile, user.Email, user.DOB, user.FirstName, user.LastName, user.Gender, user.Url, userID)
 	if err != nil {
 		return fmt.Errorf("Error upsert user: %v", err)
 	}

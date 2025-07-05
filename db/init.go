@@ -14,7 +14,7 @@ var DB *sql.DB
 // InitDB initializes the database connection
 func InitDB() error {
 	log.Println("Db connection started with db url as ", os.Getenv("DB_URL"))  // Log every health check request
-	dsn := os.Getenv("DB_URL")
+	dsn := "aakash:password@tcp(dev.cux6ooc2wjhv.us-east-1.rds.amazonaws.com:3306)/dev?parseTime=true"
 	var err error
 	DB, err = sql.Open("mysql", dsn)
 	if err != nil {

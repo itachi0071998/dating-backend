@@ -11,7 +11,8 @@ const(
 	`
 
 	UpdateUserPrompt = `
-	UPDATE user_prompts SET prompt = ? WHERE user_id = ? AND prompt_id = ?
+	INSERT INTO user_prompts (user_id, prompt_id, prompt) VALUES (?, ?, ?)
+	ON DUPLICATE KEY UPDATE prompt = VALUES(prompt)
 	`
 
 	GetUserPrompt = `
