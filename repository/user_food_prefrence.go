@@ -511,31 +511,31 @@ func UpsertUserFoodPreference(userID string, foodPreference *models.FoodPrefrenc
 	return nil
 }
 
-func GetUserFoodPreference(userID string) (*models.FoodPrefrenceResponseDTO, error) {
+func GetUserFoodPreference(userID string) (*models.FoodPrefrenceRequestDTO, error) {
 	var foodPreference models.UserFoodPreference
-	var foodPreferenceResponse models.FoodPrefrenceResponseDTO
+	var foodPreferenceResponse models.FoodPrefrenceRequestDTO
 	var favoriteCuisines, dietaryPreferences, foodAllergies, favoriteDishes, cookingStyles, spiceLevels, favDrinks, diningStyles, foodHabits, cookingLevels sql.NullString
 
 	err := db.DB.QueryRow(query.GetUserFoodPreference, userID).Scan(
-		&foodPreference.UserID,
 		&foodPreference.FavoriteCuisineOther,
-		&foodPreference.DietaryPreferenceOther,
-		&foodPreference.FoodAllergyOther,
-		&foodPreference.FavoriteDishesOther,
-		&foodPreference.CookingStyleOther,
-		&foodPreference.SpiceToleranceOther,
-		&foodPreference.CookingLevelOther,
-		&foodPreference.FavDrinkOther,
-		&foodPreference.FoodHabitOther,
-		&favoriteCuisines,
-		&dietaryPreferences,
-		&foodAllergies,
-		&favoriteDishes,
-		&cookingStyles,
-		&spiceLevels,
-		&cookingLevels,
-		&favDrinks,
-		&foodHabits,
+    &foodPreference.DietaryPreferenceOther, 
+    &foodPreference.FoodAllergyOther,       
+    &foodPreference.FavoriteDishesOther,    
+    &foodPreference.CookingStyleOther,      
+    &foodPreference.SpiceToleranceOther,    
+    &foodPreference.CookingLevelOther,      
+    &foodPreference.FavDrinkOther,          
+    &foodPreference.FoodHabitOther,         
+    &favoriteCuisines,                      
+    &dietaryPreferences,                    
+    &foodAllergies,                         
+    &favoriteDishes,                        
+    &cookingStyles,                         
+    &spiceLevels,                           
+    &cookingLevels,                         
+    &favDrinks,                             
+    &diningStyles,                          
+    &foodHabits,              
 	)
 	if err == sql.ErrNoRows {
 		fmt.Println("No food preferences found for user")
@@ -546,8 +546,6 @@ func GetUserFoodPreference(userID string) (*models.FoodPrefrenceResponseDTO, err
 		fmt.Println("Error getting Food Preference: ", err)
 		return nil, err
 	}
-	foodPreferenceResponse.UserID = foodPreference.UserID
-
 	if foodPreference.FavoriteCuisineOther != "" {
 		foodPreferenceResponse.FavoriteCuisineOther = strings.Split(foodPreference.FavoriteCuisineOther, ",")
 	}

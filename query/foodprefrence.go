@@ -29,7 +29,6 @@ const (
 	`
 
 	GetUserFoodPreference = `SELECT 
-    ufp.user_id,
     ufp.favorite_cuisine_other,
     ufp.dietary_preference_other,
     ufp.food_allergy_other,

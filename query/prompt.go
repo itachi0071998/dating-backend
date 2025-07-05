@@ -4,8 +4,6 @@ const(
 	InsertUserPrompt = `
 	INSERT INTO user_prompts (user_id, prompt_id, prompt)
 	VALUES %s
-	ON DUPLICATE KEY UPDATE
-	    prompt = VALUES(prompt)
 	`
 
 	DeleteUserPrompt = `

@@ -19,9 +19,17 @@ func CheckUserExists(tx *sql.Tx, id string) (bool, error) {
 }
 
 func UpsertUser(user *models.User) error {
-	_, err := db.DB.Exec(query.UpsertUser, user.ID, user.Mobile, user.Email, user.DOB, user.FirstName, user.LastName, user.Gender, user.Url)
+	_, err := db.DB.Exec(query.UpdateUser, user.Mobile, user.Email, user.DOB, user.FirstName, user.LastName, user.Gender, user.Url, user.ID)
 	if err != nil {
 		return fmt.Errorf("Error upsert user: %v", err)
+	}
+	return nil	
+}
+
+func InsertUser(user *models.User) error {
+	_, err := db.DB.Exec(query.InsertUser, user.ID, user.Mobile, user.Email, user.DOB, user.FirstName, user.LastName, user.Gender, user.Url)
+	if err != nil {
+		return fmt.Errorf("Error insert user: %v", err)
 	}
 	return nil	
 }
@@ -34,9 +42,9 @@ func UpsertUser(user *models.User) error {
 // 	return nil
 // }
 
-func GetUserByID(tx *sql.Tx, id string) (*models.User, error) {
+func GetUserByID(id string) (*models.User, error) {
 	user := &models.User{}
-	err := tx.QueryRow(query.GetUserById, id).Scan(
+	err := db.DB.QueryRow(query.GetUserById, id).Scan(
 		&user.ID,
 		&user.Mobile,
 		&user.Email,

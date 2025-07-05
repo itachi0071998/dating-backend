@@ -90,3 +90,23 @@ func UpdateUserProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "User profile updated successfully"})	
 }
+
+func GetUserProfile(c *gin.Context) {
+	uid, exists := c.Get("uid")
+	if !exists {
+		fmt.Println("User not authenticated")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	userID := uid.(string)
+
+	userProfile, err := service.GetUserProfile(userID)
+	if err != nil {
+		fmt.Println("Error getting user profile: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"userProfile": userProfile})
+}

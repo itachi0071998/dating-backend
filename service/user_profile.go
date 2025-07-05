@@ -26,10 +26,10 @@ func InsertUserProfile(userID string, userProfile *models.UserProfileRequest) er
 	log.Printf("Request started for user: %v", userID)
 	userProfile.User.ID = userID
 
-	if err := repository.UpsertUser(&userProfile.User); err != nil {
+	if err := repository.InsertUser(&userProfile.User); err != nil {
 		return err
 	}
-	log.Printf("UpsertUser success for user ID: %v", userProfile.User.ID)
+	log.Printf("InsertUser success for user ID: %v", userProfile.User.ID)
 
 	if err := insertUserFoodPreference(userID, &userProfile.FoodPreference); err != nil {
 		return err
@@ -41,20 +41,8 @@ func InsertUserProfile(userID string, userProfile *models.UserProfileRequest) er
 }
 
 func UpdateUserProfile(userID string, userProfile *models.UserProfileRequest) error {
-	tx, err := db.DB.Begin()
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		}
-	}()
 	if err := repository.UpsertUser(&userProfile.User); err != nil {
 		return err
-	}
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("error committing transaction: %v", err)
 	}
 	if err := updateUserFoodPreference(userID, &userProfile.FoodPreference); err != nil {
 		return err
@@ -65,17 +53,45 @@ func UpdateUserProfile(userID string, userProfile *models.UserProfileRequest) er
 	return nil
 }
 
+func GetUserProfile(userID string) (*models.UserProfileResponse, error) {
+	user, err := repository.GetUserByID(userID)
+	if err != nil {
+		return nil, err
+	}
+	foodPreference, err := repository.GetUserFoodPreference(userID)
+	if err != nil {
+		return nil, err
+	}
+	prompts, err := repository.GetUserPrompts(userID)
+	if err != nil {
+		return nil, err
+	}
+	userProfile := &models.UserProfileResponse{
+		User:           *user,
+		FoodPreference: *foodPreference,
+		Prompts:        prompts,
+	}
+	return userProfile, nil
+}
+
 func updateUserFoodPreference(userID string, userFoodPreference *models.FoodPrefrenceRequestDTO) error {
 
 	wg := sync.WaitGroup{}
-	errCh := make(chan error, 10)
+	errCh := make(chan error, 11)
 
-	wg.Add(10)
+	wg.Add(11)
 
 	go func() {
 		defer wg.Done()
 		if err := repository.UpsertUserFoodPreference(userID, userFoodPreference); err != nil {
 			errCh <- fmt.Errorf("UpsertUserFoodPreference: %w", err)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		if err := updateUserFavoriteCuisine(userID, userFoodPreference.FavoriteCuisines); err != nil {
+			errCh <- fmt.Errorf("UpdateUserFavoriteCuisine: %w", err)
 		}
 	}()
 
@@ -154,9 +170,9 @@ func updateUserFoodPreference(userID string, userFoodPreference *models.FoodPref
 
 func insertUserFoodPreference(userID string, userFoodPreference *models.FoodPrefrenceRequestDTO) error {
 	wg := sync.WaitGroup{}
-	errCh := make(chan error, 10) // 10 associative inserts
+	errCh := make(chan error, 11) // 10 associative inserts
 
-	wg.Add(10)
+	wg.Add(11)
 
 	go func() {
 		log.Println("UpsertUserFoodPreference")
@@ -165,6 +181,13 @@ func insertUserFoodPreference(userID string, userFoodPreference *models.FoodPref
 			errCh <- fmt.Errorf("UpsertUserFoodPreference: %w", err)
 		}
 		log.Println("UpsertUserFoodPreference success")
+	}()
+
+	go func(){
+		defer wg.Done()
+		if err := repository.InsertUserFavoriteCuisine(userID, userFoodPreference.FavoriteCuisines); err != nil {
+			errCh <- fmt.Errorf("InsertUserFavoriteCuisine: %w", err)
+		}
 	}()
 
 	go func() {
@@ -401,6 +424,30 @@ func updateUserCookingLevel(userID string, prefrences []int) error {
 	return nil
 }
 
+func updateUserFavoriteCuisine(userID string, prefrences []int) error {
+	currentFavoriteCuisine, err := repository.GetUserFavoriteCuisine(userID)
+	if err != nil {
+		return err
+	}
+	currentFavoriteCuisineIds, err := getFoodPrefrenceIds(currentFavoriteCuisine, prefrences)
+	if err != nil {
+		return err
+	}
+	if len(currentFavoriteCuisineIds.Add) > 0 {
+		err = repository.InsertUserFavoriteCuisine(userID, currentFavoriteCuisineIds.Add)
+		if err != nil {
+			return err
+		}
+	}
+	if len(currentFavoriteCuisineIds.Remove) > 0 {
+		err = repository.ExcludeUserFavoriteCuisine(userID, currentFavoriteCuisineIds.Remove)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func updateUserFavDrink(userID string, prefrences []int) error {
 	currentFavDrink, err := repository.GetUserFavDrink(userID)
 	if err != nil {
@@ -511,11 +558,9 @@ func updateUserPrompts(userID string, prompts *[]models.PromptDTO) error {
 	if err != nil {
 		return err
 	}
-	if len(currentPromptIds.Add) > 0 {
-		err = repository.InsertUserPrompt(userID, prompts)
-		if err != nil {
-			return err
-		}
+	err = repository.UpdateUserPrompt(userID, prompts)
+	if err != nil {
+		return err
 	}
 	if len(currentPromptIds.Remove) > 0 {
 		err = repository.ExcludeUserPrompt(userID, currentPromptIds.Remove)
@@ -525,3 +570,4 @@ func updateUserPrompts(userID string, prompts *[]models.PromptDTO) error {
 	}
 	return nil
 }
+

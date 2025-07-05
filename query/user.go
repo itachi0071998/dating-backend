@@ -1,7 +1,8 @@
 package query
 
 const (
-	UpsertUser = `
+
+	InsertUser = `
 	INSERT INTO users (
 		id,
 		mobile,
@@ -13,14 +14,19 @@ const (
 		url
 	)
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-	ON DUPLICATE KEY UPDATE
-		mobile = VALUES(mobile),
-		email = VALUES(email),
-		dob = VALUES(dob),
-		first_name = VALUES(first_name),
-		last_name = VALUES(last_name),
-		gender = VALUES(gender),
-		url = VALUES(url)
+	`
+	UpsertUser = `
+	REPLACE INTO users (
+		id,
+		mobile,
+		email,
+		dob,
+		first_name,
+		last_name,
+		gender,
+		url
+	)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 
@@ -28,7 +34,7 @@ const (
 		SELECT EXISTS(SELECT 1 FROM users WHERE id = ?)`
 
 	UpdateUser = `
-		UPDATE users SET id=?, mobile=?, email=?, dob=?, first_name=?, last_name=?, gender=?, url=?
+		UPDATE users SET mobile=?, email=?, dob=?, first_name=?, last_name=?, gender=?, url=?
 		WHERE id = ?`
 
 	GetUserById = `

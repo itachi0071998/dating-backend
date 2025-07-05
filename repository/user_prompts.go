@@ -53,3 +53,31 @@ func GetUserPrompt(userID string) ([]int, error) {
 	}
 	return prompts, nil
 }
+
+func UpdateUserPrompt(userID string, prompts *[]models.PromptDTO) error {
+	for _, prompt := range *prompts {
+		_, err := db.DB.Exec(query.UpdateUserPrompt, prompt.Answer, userID, prompt.PromptID)
+		if err != nil {
+			return fmt.Errorf("error updating prompt: %v", err)
+		}
+	}
+	return nil
+}
+
+func GetUserPrompts(userID string) ([]models.PromptDTO, error) {
+	rows, err := db.DB.Query(query.GetUserPrompt, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting prompts: %v", err)
+	}
+	defer rows.Close()
+
+	prompts := make([]models.PromptDTO, 0)
+	for rows.Next() {
+		var prompt models.PromptDTO
+		if err := rows.Scan(&prompt.PromptID, &prompt.Answer); err != nil {
+			return nil, fmt.Errorf("error scanning prompts: %v", err)
+		}
+		prompts = append(prompts, prompt)
+	}
+	return prompts, nil
+}

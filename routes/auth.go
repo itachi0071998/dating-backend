@@ -12,4 +12,6 @@ func AuthRoutes(r *gin.Engine) {
 	userRoutes.Use(firebase.AuthMiddleware()) 
 	userRoutes.POST("/profile", controller.CreateUserProfile)
 	userRoutes.PUT("/profile", controller.UpdateUserProfile)
+	userRoutes.GET("/profile", controller.GetUserProfile)
+	userRoutes.POST("/profile/upload/:bucket", controller.UploadUserProfileHandler)
 }
